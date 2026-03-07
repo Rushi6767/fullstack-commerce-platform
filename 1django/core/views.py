@@ -125,3 +125,74 @@ def delete_one(request, id):
         return JsonResponse({
             "error": "Record not found"
         }, status=404)
+    
+
+"""
+SELECT * FROM demo_model;
+
+SELECT * FROM demo_model
+WHERE id = 3;
+
+SELECT *
+FROM demo_model
+WHERE status='active';
+
+SELECT *
+FROM demo_model
+WHERE status != 'active';
+
+SELECT *
+FROM demo_model
+ORDER BY id
+LIMIT 1;
+
+SELECT *
+FROM demo_model
+ORDER BY id DESC
+LIMIT 1;
+
+"""
+
+def orm(request):
+    # SELECT * FROM demo_model;
+    # data = list(DemoModel.objects.all().values())
+    # print("DATA : =============================================", data)
+
+    # obj = DemoModel.objects.get(id=10)
+
+    # filter_data = list(
+    #     DemoModel.objects.filter(
+    #         status="active"
+    #     ).values()
+    # )
+
+    # exclude_data = list(
+    #     DemoModel.objects.exclude(
+    #         status="active"
+    #     ).values()
+    # )
+
+    # first_data = DemoModel.objects.first()
+
+    last_data = DemoModel.objects.last()
+
+
+
+    return JsonResponse({
+        # "count": len(data),
+        # "data": data
+
+        # "id": obj.id,
+        # "name": obj.char_field,
+        # "salary": float(obj.decimal_field)
+
+        # "count": len(data),
+        # "data": filter_data
+
+        # "count": len(data),
+        # "data": exclude_data
+
+        # "data": first_data
+
+        "data": last_data        
+    })

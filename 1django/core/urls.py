@@ -8,4 +8,5 @@ urlpatterns = [
     path('get-one/<int:id>/', views.get_one),
     path('update/<int:id>/', views.update_one),
     path('delete/<int:id>/', views.delete_one),
+    path("orm/", views.orm),
 ]
