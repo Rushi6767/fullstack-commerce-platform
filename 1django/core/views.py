@@ -151,6 +151,61 @@ FROM demo_model
 ORDER BY id DESC
 LIMIT 1;
 
+
+Step 2: Filter Data
+SELECT * FROM core_demomodel
+WHERE status = 'active';
+
+SELECT *
+FROM core_demomodel
+WHERE decimal_field > 90000;
+
+SELECT *
+FROM core_demomodel
+WHERE integer_field >= 30;
+
+SELECT *
+FROM core_demomodel
+WHERE char_field LIKE '%John%';
+
+SELECT *
+FROM core_demomodel
+WHERE id IN (1,3,5,7);
+
+SELECT *
+FROM core_demomodel
+WHERE integer_field BETWEEN 25 AND 30;
+
+-- ORDER BY ASC
+SELECT *
+FROM core_demomodel
+ORDER BY integer_field;
+
+-- ORDER BY DESC
+SELECT *
+FROM core_demomodel
+ORDER BY integer_field DESC;
+
+-- ORDER BY Name
+SELECT *
+FROM core_demomodel
+ORDER BY char_field;
+
+-- Multiple ORDER BY
+SELECT *
+FROM core_demomodel
+ORDER BY status, integer_field DESC;
+
+-- LIMIT 5
+SELECT *
+FROM core_demomodel
+LIMIT 5;
+
+-- OFFSET 5 LIMIT 5
+SELECT *
+FROM core_demomodel
+LIMIT 5 OFFSET 5;
+
 """
 
 def orm(request):
@@ -174,9 +229,118 @@ def orm(request):
 
     # first_data = DemoModel.objects.first()
 
-    last_data = DemoModel.objects.last()
+    # last_data = DemoModel.objects.last()
 
+    # filter data
+    # exact_data = list(
+    #     DemoModel.objects.exclude(
+    #         status="active"
+    #     ).values()
+    # )
 
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         decimal_field__gt=90000
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         integer_field__gte=30
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         integer_field__lt=30
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         integer_field__lte=28
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         char_field__contains="John"
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         char_field__icontains="john"
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         char_field__startswith="J"
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         email_field__endswith="@example.com"
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         id__in=[1, 3, 5, 7]
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         integer_field__range=(25, 30)
+    #     ).values()
+    # )
+
+    # data = list(
+    #     DemoModel.objects.filter(
+    #         file_field__isnull=True
+    #     ).values()
+    # )
+
+    # data = list(DemoModel.objects.filter(status = 'inactive').values())
+    # print("DAta ===================================", data)
+
+    # ORDER BY ASC
+    data = list(
+        DemoModel.objects.order_by("integer_field").values()
+    )
+
+    # ORDER BY DESC
+    data = list(
+        DemoModel.objects.order_by("-integer_field").values()
+    )
+
+    # ORDER BY Name
+    data = list(
+        DemoModel.objects.order_by("char_field").values()
+    )
+
+    # Multiple ORDER BY
+    data = list(
+        DemoModel.objects.order_by("status", "-integer_field").values()
+    )
+
+    # Reverse
+    data = list(
+        DemoModel.objects.order_by("integer_field").reverse().values()
+    )
+
+    # LIMIT 5
+    data = list(
+        DemoModel.objects.all()[:5].values()
+    )
+
+    # OFFSET 5 LIMIT 5
+    data = list(
+        DemoModel.objects.all()[5:10].values()
+    )
 
     return JsonResponse({
         # "count": len(data),
@@ -194,5 +358,9 @@ def orm(request):
 
         # "data": first_data
 
-        "data": last_data        
+        # "data": last_data
+
+        # "data": last_data
+
+        "data" : data
     })
