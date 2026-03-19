@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import DemoModel
 from django.utils import timezone
+from django.db.models import Avg, Max, Min, Sum, Count
 
 
 # Create your views here.
@@ -206,6 +207,64 @@ SELECT *
 FROM core_demomodel
 LIMIT 5 OFFSET 5;
 
+SELECT COUNT(*) FROM core_demomodel;
+
+SELECT EXISTS(
+SELECT *
+FROM core_demomodel
+WHERE status='active'
+);
+
+SELECT
+SUM(decimal_field),
+AVG(decimal_field),
+MAX(decimal_field),
+MIN(decimal_field)
+FROM core_demomodel;
+
+SELECT
+status,
+COUNT(*)
+FROM core_demomodel
+GROUP BY status;
+otuput:
+[
+    {
+        "status":"active",
+        "total":7
+    },
+    {
+        "status":"inactive",
+        "total":2
+    },
+    {
+        "status":"blocked",
+        "total":1
+    }
+]
+
+UPDATE core_demomodel
+SET status='inactive'
+WHERE id=3;
+
+UPDATE core_demomodel
+SET status='blocked'
+WHERE integer_field > 30;
+
+DELETE
+FROM core_demomodel
+WHERE id = 1;
+
+DELETE
+FROM core_demomodel
+WHERE status='inactive';
+
+DELETE FROM core_demomodel;
+
+SELECT
+char_field,
+decimal_field
+FROM core_demomodel;
 """
 
 def orm(request):
@@ -341,6 +400,113 @@ def orm(request):
     data = list(
         DemoModel.objects.all()[5:10].values()
     )
+
+    data = DemoModel.objects.aggregate(
+
+    total_salary=Sum("decimal_field"),
+
+    average_salary=Avg("decimal_field"),
+
+    highest_salary=Max("decimal_field"),
+
+    lowest_salary=Min("decimal_field")
+
+    )
+
+    count = DemoModel.objects.count()
+    exists = DemoModel.objects.filter(
+    status="active"
+    ).exists()
+
+    data = DemoModel.objects.aggregate(
+    total=Sum("decimal_field")
+    )
+
+    data = DemoModel.objects.aggregate(
+    average=Avg("decimal_field")
+    )
+
+    data = DemoModel.objects.aggregate(
+    maximum=Max("decimal_field")
+    )
+    data = DemoModel.objects.aggregate(
+    maximum=Min("decimal_field")
+    )
+
+    data = list(
+    DemoModel.objects.values("status")
+    .annotate(total=Count("id"))
+    )
+
+    obj = DemoModel.objects.get(id=1)
+    obj.char_field = "Rushi"
+    obj.integer_field = 100
+    obj.save()
+
+    rows = DemoModel.objects.filter(
+    id=3
+    ).update(
+        status="inactive"
+    )
+
+    rows = DemoModel.objects.filter(
+    integer_field__gt=30
+    ).update(
+        status="blocked"
+    )
+
+    # obj = DemoModel.objects.get(id=1)
+    # obj.delete()
+
+    # deleted_count, _ = DemoModel.objects.filter(
+    # status="inactive"
+    # ).delete()
+
+    # deleted_count, _ = DemoModel.objects.all().delete()
+
+    # if DemoModel.objects.filter(id=5).exists():
+    #     DemoModel.objects.filter(id=5).delete()
+
+
+    data = list(
+    DemoModel.objects.values(
+        "char_field",
+        "decimal_field"
+    )
+    )
+    data = list(
+    DemoModel.objects.values_list(
+        "char_field",
+        "decimal_field"
+    )
+    )
+
+    data = list(
+    DemoModel.objects.values_list(
+        "char_field",
+        flat=True
+    )
+    )
+
+    users = DemoModel.objects.only(
+    "char_field",
+    "email_field"
+    )
+
+    for user in users:
+        print(user.char_field)
+        print(user.email_field)
+
+    users = DemoModel.objects.defer(
+    "json_field",
+    "text_field"
+)
+
+    for user in users:
+        print(user.char_field)
+
+
+
 
     return JsonResponse({
         # "count": len(data),
