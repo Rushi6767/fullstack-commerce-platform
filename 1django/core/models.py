@@ -49,3 +49,24 @@ class DemoModel(models.Model):
 
     def __str__(self):
         return self.char_field
+    
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.name
+
+
+class Order(models.Model):
+    order_number = models.CharField(max_length=30)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.order_number
