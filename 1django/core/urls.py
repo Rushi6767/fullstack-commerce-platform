@@ -1,13 +1,25 @@
 from django.urls import path
-from . import views
+from .views import (
+    CreateOneView,
+    CreateManyView,
+    GetAllView,
+    GetOneView,
+    UpdateOneView,
+    DeleteOneView,
+)
+
+from .orm_playground import ORMPlaygroundView
+
 
 urlpatterns = [
-    path('create-one/', views.create_one),
-    path('create-many/', views.create_many),
-    path('get-all/', views.get_all),
-    path('get-one/<int:id>/', views.get_one),
-    path('update/<int:id>/', views.update_one),
-    path('delete/<int:id>/', views.delete_one),
-    path("orm/", views.orm),
-    
+    # CRUD APIs
+    path("create/", CreateOneView.as_view()),
+    path("create-many/", CreateManyView.as_view()),
+    path("all/", GetAllView.as_view()),
+    path("get/<int:id>/", GetOneView.as_view()),
+    path("update/<int:id>/", UpdateOneView.as_view()),
+    path("delete/<int:id>/", DeleteOneView.as_view()),
+
+    # ORM learning playground
+    path("orm/", ORMPlaygroundView.as_view()),
 ]
