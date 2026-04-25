@@ -116,3 +116,106 @@ class DeleteOneView(View):
             return JsonResponse({"error": "not found"}, status=404)
 
         return JsonResponse({"message": "deleted"})
+    
+
+from django.views import View
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from .models import DemoModel
+
+
+class PaginatedListView(View):
+    def get(self, request):
+        page = request.GET.get("page", 1)
+        limit = request.GET.get("limit", 5)
+
+        queryset = DemoModel.objects.all().order_by("id")
+
+        paginator = Paginator(queryset, limit)
+        page_obj = paginator.get_page(page)
+
+        data = list(page_obj.object_list.values())
+
+        return JsonResponse({
+            "page": page_obj.number,
+            "total_pages": paginator.num_pages,
+            "count": paginator.count,
+            "results": data
+        })
+    
+
+class SearchView(View):
+    def get(self, request):
+        query = request.GET.get("q", "")
+
+        data = DemoModel.objects.filter(
+            char_field__icontains=query
+        ).values()
+
+        return JsonResponse({
+            "query": query,
+            "count": len(data),
+            "results": list(data)
+        })
+    
+class OptimizedQueryView(View):
+    def get(self, request):
+
+        data = DemoModel.objects.only(
+            "id",
+            "char_field",
+            "email_field"
+        ).values()
+
+        return JsonResponse({
+            "optimized": True,
+            "results": list(data)
+        })
+    
+from django.db.models import Sum, Avg, Max, Min, Count
+
+
+class AnalyticsView(View):
+    def get(self, request):
+
+        stats = DemoModel.objects.aggregate(
+            total=Sum("decimal_field"),
+            average=Avg("decimal_field"),
+            max_value=Max("decimal_field"),
+            min_value=Min("decimal_field"),
+            count=Count("id"),
+        )
+
+        grouped = list(
+            DemoModel.objects.values("status")
+            .annotate(total=Count("id"))
+        )
+
+        return JsonResponse({
+            "stats": stats,
+            "grouped_by_status": grouped
+        })
+    
+
+from django.core.cache import cache
+
+
+class CachedListView(View):
+    def get(self, request):
+
+        cached_data = cache.get("demo_list")
+
+        if cached_data:
+            return JsonResponse({
+                "cached": True,
+                "data": cached_data
+            })
+
+        data = list(DemoModel.objects.all().values())
+
+        cache.set("demo_list", data, timeout=60)  # 1 min cache
+
+        return JsonResponse({
+            "cached": False,
+            "data": data
+        })

@@ -6,6 +6,11 @@ from .views import (
     GetOneView,
     UpdateOneView,
     DeleteOneView,
+    PaginatedListView,
+    SearchView,
+    OptimizedQueryView,
+    AnalyticsView,
+    CachedListView,
 )
 
 from .orm_playground import ORMPlaygroundView
@@ -22,4 +27,10 @@ urlpatterns = [
 
     # ORM learning playground
     path("orm/", ORMPlaygroundView.as_view()),
+
+    path("page/", PaginatedListView.as_view()),
+    path("search/", SearchView.as_view()),
+    path("optimized/", OptimizedQueryView.as_view()),
+    path("analytics/", AnalyticsView.as_view()),
+    path("cached/", CachedListView.as_view()),
 ]
