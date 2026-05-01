@@ -2,7 +2,11 @@ from django.http import JsonResponse
 from django.views import View
 from django.utils import timezone
 from .models import DemoModel
+from django.shortcuts import render
 
+
+def home(request):
+    return render(request, 'home.html')
 
 # ---------------------------
 # CREATE ONE
