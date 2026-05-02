@@ -12,7 +12,7 @@ from .views import (
     AnalyticsView,
     CachedListView,
 )
-from .views import home
+from .views import home, contact, contact_success
 from .orm_playground import ORMPlaygroundView
 
 
@@ -34,4 +34,6 @@ urlpatterns = [
     path("analytics/", AnalyticsView.as_view()),
     path("cached/", CachedListView.as_view()),
     path('', home, name='home'),
+    path('contact/', contact, name='contact'),
+    path('success/', contact_success, name='contact_success'),
 ]
