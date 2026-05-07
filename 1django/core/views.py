@@ -1,8 +1,8 @@
 from django.http import JsonResponse
 from django.views import View
 from django.utils import timezone
-from .models import DemoModel
-from django.shortcuts import render, redirect
+from .models import DemoModel, Contact
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ContactForm
 
 def home(request):
@@ -22,6 +22,40 @@ def contact(request):
 
 def contact_success(request):
     return render(request, 'success.html')
+
+def contact_list(request):
+    contacts = Contact.objects.all().order_by('-id')
+
+    return render(request, 'contact_list.html', {
+        'contacts': contacts
+    })
+
+
+def contact_update(request, id):
+    contact = Contact.objects.get(id=id)
+
+    if request.method == "POST":
+        form = ContactForm(request.POST, instance=contact)
+        if form.is_valid():
+            form.save()
+            return redirect('contact_list')
+
+    else:
+        form = ContactForm(instance=contact)  # IMPORTANT LINE
+
+    return render(request, 'contact_update.html', {'form': form})
+
+
+def contact_delete(request, id):
+    contact = get_object_or_404(Contact, id=id)
+
+    if request.method == "POST":
+        contact.delete()
+        return redirect('contact_list')
+
+    return render(request, 'contact_delete.html', {
+        'contact': contact
+    })
 
 # ---------------------------
 # CREATE ONE
