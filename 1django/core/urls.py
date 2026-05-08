@@ -12,7 +12,7 @@ from .views import (
     AnalyticsView,
     CachedListView,
 )
-from .views import home, contact, contact_success, contact_list, contact_update, contact_delete
+from .views import home, contact, contact_success, contact_list, contact_update, contact_delete, register, user_login, user_logout
 from .orm_playground import ORMPlaygroundView
 
 
@@ -41,4 +41,7 @@ urlpatterns = [
     path('contacts/', contact_list, name='contact_list'),
     path('update/<int:id>/', contact_update, name='contact_update'),
     path('delete/<int:id>/', contact_delete, name='contact_delete'),
+    path('register/', register, name='register'),
+    path('login/', user_login, name='login'),
+    path('logout/', user_logout, name='logout'),
 ]

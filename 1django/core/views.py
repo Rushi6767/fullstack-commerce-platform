@@ -3,8 +3,13 @@ from django.views import View
 from django.utils import timezone
 from .models import DemoModel, Contact
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ContactForm
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import AuthenticationForm
+from .forms import ContactForm, RegisterForm
 
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def home(request):
     return render(request, 'home.html')
 
@@ -56,6 +61,45 @@ def contact_delete(request, id):
     return render(request, 'contact_delete.html', {
         'contact': contact
     })
+
+# REGISTER
+def register(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+
+        else:
+            print(form.errors)  # 🔥 IMPORTANT for debugging
+
+    else:
+        form = RegisterForm()
+
+    return render(request, 'register.html', {'form': form})
+
+
+# LOGIN
+def user_login(request):
+    if request.method == "POST":
+        form = AuthenticationForm(data=request.POST)
+
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('contact_list')  # after login
+
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'login.html', {'form': form})
+
+
+# LOGOUT
+def user_logout(request):
+    logout(request)
+    return redirect('login')
 
 # ---------------------------
 # CREATE ONE
