@@ -7,11 +7,14 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import ContactForm, RegisterForm
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 @login_required
 def home(request):
     return render(request, 'home.html')
+
+def is_admin(user):
+    return user.is_superuser
 
 def contact(request):
     if request.method == "POST":
@@ -50,7 +53,8 @@ def contact_update(request, id):
 
     return render(request, 'contact_update.html', {'form': form})
 
-
+@login_required
+@user_passes_test(is_admin)
 def contact_delete(request, id):
     contact = get_object_or_404(Contact, id=id)
 
