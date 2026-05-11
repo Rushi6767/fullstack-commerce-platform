@@ -1,109 +1,100 @@
-from django.http import JsonResponse
-from django.views import View
-from django.utils import timezone
-from .models import DemoModel, Contact
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.decorators import method_decorator
+
+from django.views import View
+from django.views.generic import ListView, UpdateView, TemplateView, FormView, View
+
+from .models import Contact
 from .forms import ContactForm, RegisterForm
 
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
 
-@login_required
-def home(request):
-    return render(request, 'home.html')
+
+class HomeView(TemplateView):
+    template_name = "home.html"
 
 def is_admin(user):
     return user.is_superuser
 
-def contact(request):
-    if request.method == "POST":
+class ContactCreateView(View):
+
+    def get(self, request):
+        form = ContactForm()
+        return render(request, 'contact.html', {'form': form})
+
+    def post(self, request):
         form = ContactForm(request.POST)
+
         if form.is_valid():
             form.save()
             return redirect('contact_success')
-    else:
-        form = ContactForm()
 
-    return render(request, 'contact.html', {'form': form})
+        return render(request, 'contact.html', {'form': form})
 
+class ContactSuccessView(TemplateView):
+    template_name = "success.html"
 
-def contact_success(request):
-    return render(request, 'success.html')
-
-def contact_list(request):
-    contacts = Contact.objects.all().order_by('-id')
-
-    return render(request, 'contact_list.html', {
-        'contacts': contacts
-    })
+class ContactListView(ListView):
+    model = Contact
+    template_name = "contact_list.html"
+    context_object_name = "contacts"
+    ordering = ['-id']
 
 
-def contact_update(request, id):
-    contact = Contact.objects.get(id=id)
+class ContactUpdateView(UpdateView):
+    model = Contact
+    form_class = ContactForm
+    template_name = "contact_update.html"
+    success_url = "/contacts/"
+    pk_url_kwarg = "id"
 
-    if request.method == "POST":
-        form = ContactForm(request.POST, instance=contact)
-        if form.is_valid():
-            form.save()
-            return redirect('contact_list')
+@method_decorator([login_required, user_passes_test(is_admin)], name='dispatch')
+class ContactDeleteView(View):
 
-    else:
-        form = ContactForm(instance=contact)  # IMPORTANT LINE
+    def get(self, request, id):
+        contact = get_object_or_404(Contact, id=id)
+        return render(request, 'contact_delete.html', {'contact': contact})
 
-    return render(request, 'contact_update.html', {'form': form})
-
-@login_required
-@user_passes_test(is_admin)
-def contact_delete(request, id):
-    contact = get_object_or_404(Contact, id=id)
-
-    if request.method == "POST":
+    def post(self, request, id):
+        contact = get_object_or_404(Contact, id=id)
         contact.delete()
         return redirect('contact_list')
 
-    return render(request, 'contact_delete.html', {
-        'contact': contact
-    })
-
 # REGISTER
-def register(request):
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
+class RegisterView(FormView):
+    template_name = 'register.html'
+    form_class = RegisterForm
+    success_url = '/login/'
 
-        if form.is_valid():
-            form.save()
-            return redirect('login')
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
-        else:
-            print(form.errors)  # 🔥 IMPORTANT for debugging
-
-    else:
-        form = RegisterForm()
-
-    return render(request, 'register.html', {'form': form})
+    def form_invalid(self, form):
+        print(form.errors)  # debugging
+        return super().form_invalid(form)
 
 
 # LOGIN
-def user_login(request):
-    if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
+class LoginView(FormView):
+    template_name = 'login.html'
+    form_class = AuthenticationForm
+    success_url = '/contacts/'
 
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('contact_list')  # after login
-
-    else:
-        form = AuthenticationForm()
-
-    return render(request, 'login.html', {'form': form})
+    def form_valid(self, form):
+        user = form.get_user()
+        login(self.request, user)
+        return super().form_valid(form)
 
 
 # LOGOUT
-def user_logout(request):
-    logout(request)
-    return redirect('login')
+class LogoutView(View):
+
+    def get(self, request):
+        logout(request)
+        return redirect('login')
 
 # ---------------------------
 # CREATE ONE
