@@ -6,7 +6,7 @@ from .models import Contact
 class ContactForm(forms.ModelForm):
     class Meta:
         model = Contact
-        fields = ['name', 'phone', 'email', 'message']
+        fields = ['name', 'phone', 'email', 'message', 'file']
 
 
 class RegisterForm(UserCreationForm):

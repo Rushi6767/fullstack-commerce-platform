@@ -25,7 +25,10 @@ class ContactCreateView(View):
         return render(request, 'contact.html', {'form': form})
 
     def post(self, request):
-        form = ContactForm(request.POST)
+        form = ContactForm(
+            request.POST,
+            request.FILES
+        )
 
         if form.is_valid():
             form.save()

@@ -21,7 +21,6 @@ from .views import (
     LoginView,
     LogoutView
 )
-from .views import register, user_login, user_logout
 from .orm_playground import ORMPlaygroundView
 
 

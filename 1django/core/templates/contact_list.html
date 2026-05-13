@@ -50,7 +50,20 @@ All Contacts
 <td>{{ contact.message|truncatechars:40 }}</td>
 
 <td>
+{% if contact.file %}
 
+<a href="{{ contact.file.url }}">
+    Download
+</a>
+
+{% else %}
+
+No File
+
+{% endif %}
+</td>
+
+<td>
 <a href="{% url 'contact_update' contact.id %}" class="btn btn-warning btn-sm">
 Edit
 </a>
