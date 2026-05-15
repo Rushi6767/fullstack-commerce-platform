@@ -1,10 +1,16 @@
 from django.urls import path
-from .views import ContactListAPIView
+from .views import ContactAPIView, ContactDetailAPIView
 
 urlpatterns = [
     path(
         "crt/",
-        ContactListAPIView.as_view(),
+        ContactAPIView.as_view(),
         name="contact-list-api",
+    ),
+
+    path(
+        "crt/<int:pk>/",
+        ContactDetailAPIView.as_view(),
+        name="contact-detail",
     ),
 ]
