@@ -71,8 +71,68 @@
 
 // export default App;
 
-import Home from "./components/Home";
+// import Home from "./components/Home";
+
+// export default function App() {
+//   return <Home />;
+// }
+
+import { useEffect, useState } from "react";
 
 export default function App() {
-  return <Home />;
+  const [name, setName] = useState("");
+  const [users, setUsers] = useState([]);
+
+  /* -------------------------
+     FETCH USERS
+  --------------------------*/
+  const fetchUsers = async () => {
+    const res = await fetch("http://localhost:5000/api/users");
+    const data = await res.json();
+    setUsers(data);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  /* -------------------------
+     ADD USER
+  --------------------------*/
+  const addUser = async () => {
+    if (!name) return;
+
+    await fetch("http://localhost:5000/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name }),
+    });
+
+    setName("");
+    fetchUsers();
+  };
+
+  return (
+    <div style={{ padding: "30px" }}>
+      <h1>🚀 Fullstack Users App</h1>
+
+      {/* FORM */}
+      <input
+        placeholder="Enter name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
+      <button onClick={addUser}>Add User</button>
+
+      {/* LIST */}
+      <h2>Users</h2>
+
+      {users.map((user, index) => (
+        <p key={index}>👤 {user.name}</p>
+      ))}
+    </div>
+  );
 }
